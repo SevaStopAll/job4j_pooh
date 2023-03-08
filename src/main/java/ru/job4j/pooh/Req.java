@@ -1,5 +1,8 @@
 package ru.job4j.pooh;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class Req {
 
     private final String httpRequestType;
@@ -15,8 +18,14 @@ public class Req {
     }
 
     public static Req of(String content) {
-        /* TODO parse a content */
-        return new Req(null, null, null, null);
+        List<String> data = Arrays.stream(content.split(System.lineSeparator())).toList();
+        String[] header = data.get(0).split("/");
+        String httpRequestType = header[0].trim();
+        String poohMode = header[1];
+        String sourceName = header[2].split(" ")[0];
+        String param = data.size() != 4 ? data.get(data.size() - 1) :
+                header.length == 5 ? header[3].substring(0, header[3].length() - 5) : "";
+        return new Req(httpRequestType, poohMode, sourceName, param);
     }
 
     public String httpRequestType() {
