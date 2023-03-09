@@ -12,9 +12,9 @@ public class QueueService implements Service {
     public Resp process(Req req) {
         if (POST.equals(req.httpRequestType())) {
             queue.putIfAbsent(req.getSourceName(), new ConcurrentLinkedQueue<>());
-            queue.get(req.getSourceName()).add(req.getParam());
-            return new Resp("", "");
+            queue.getOrDefault(req.getSourceName(), new ConcurrentLinkedQueue<>()).add(req.getParam());
+            return new Resp("", "404");
         }
-        return new Resp(queue.get(req.getSourceName()).poll(), "");
+        return new Resp(queue.getOrDefault(req.getSourceName(), new ConcurrentLinkedQueue<>()).poll(), "202");
     }
 }

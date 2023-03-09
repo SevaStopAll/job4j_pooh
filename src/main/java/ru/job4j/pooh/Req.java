@@ -23,8 +23,8 @@ public class Req {
         String httpRequestType = header[0].trim();
         String poohMode = header[1];
         String sourceName = header[2].split(" ")[0];
-        String param = data.size() != 4 ? data.get(data.size() - 1) :
-                header.length == 5 ? header[3].substring(0, header[3].length() - 5) : "";
+        String param = data.size() != 4 ? data.get(data.size() - 1)
+                : header.length == 5 ? header[3].substring(0, header[3].length() - 5) : "";
         return new Req(httpRequestType, poohMode, sourceName, param);
     }
 

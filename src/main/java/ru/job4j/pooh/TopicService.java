@@ -11,12 +11,18 @@ public class TopicService implements Service {
 
     @Override
     public Resp process(Req req) {
-        if (POST.equals(req.httpRequestType()) && topics.containsKey(req.getSourceName())) {
-            topics.get(req.getSourceName()).values().forEach(a -> a.add(req.getParam()));
-            return new Resp(null, null);
+        Resp result = new Resp("", "404");
+        if (POST.equals(req.httpRequestType())) {
+            topics.getOrDefault(req.getSourceName(), new ConcurrentHashMap<>()).values().forEach(a -> a.add(req.getParam()));
         }
-/*        if (topics.putIfAbsent(req.getSourceName(), new ConcurrentHashMap<>()))*/
-        topics.get(req.getSourceName()).putIfAbsent(req.getParam(), new ConcurrentLinkedQueue<>());
-        return new Resp(topics.get(req.getSourceName()).get(req.getParam()).poll(),  "202");
+        if (GET.equals(req.httpRequestType())) {
+            topics.putIfAbsent(req.getSourceName(), new ConcurrentHashMap<>());
+            topics.getOrDefault(req.getSourceName(), new ConcurrentHashMap<>()).putIfAbsent(req.getParam(), new ConcurrentLinkedQueue<>());
+            result = new Resp(topics.getOrDefault(req.getSourceName(), new ConcurrentHashMap<>())
+                    .getOrDefault(req.getParam(), new ConcurrentLinkedQueue<>())
+                    .peek() == null ? "" : topics.getOrDefault(req.getSourceName(), new ConcurrentHashMap<>())
+                    .getOrDefault(req.getParam(), new ConcurrentLinkedQueue<>()).poll(), "202");
+        }
+        return result;
     }
 }
